@@ -32,20 +32,20 @@ const primaryItems = [
 ] as const;
 
 const studyItems = [
-  { label: "Study Plan", to: "/home", Icon: BookOpen },
-  { label: "Chat", to: "/home", Icon: MessageCircle },
-  { label: "Tutor Me", to: "/tutors", Icon: UsersRound },
-  { label: "Record Lecture", to: "/assignments", Icon: Mic },
+  { label: "Study Plan", to: "/study-plan", Icon: BookOpen },
+  { label: "Chat", to: "/chat", Icon: MessageCircle },
+  { label: "Record Lecture", to: "/record-lecture", Icon: Mic },
 ] as const;
 
 const practiceItems = [
   { label: "QuizFetch", to: "/quizzes", Icon: ClipboardCheck },
-  { label: "Test", to: "/past-questions", Icon: CircleHelp },
+  { label: "Test", to: "/test", Icon: CircleHelp },
   { label: "Flashcards", to: "/flashcards", Icon: NotebookTabs },
   { label: "Arcade", to: "/arcade", Icon: Gamepad2 },
   { label: "Essay Grader", to: "/assignments", Icon: PenLine },
-  { label: "Audio Recap", to: "/syllabus", Icon: Headphones },
+  { label: "Audio Recap", to: "/record-lecture", Icon: Headphones },
 ] as const;
+
 
 const courseItems = [
   { label: "Syllabus", to: "/syllabus", Icon: BookOpen },
