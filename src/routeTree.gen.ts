@@ -20,6 +20,7 @@ import { Route as NotesRouteImport } from './routes/notes'
 import { Route as PastQuestionsRouteImport } from './routes/past-questions'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as QuizzesRouteImport } from './routes/quizzes'
+import { Route as RecordLectureRouteImport } from './routes/record-lecture'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as SyllabusRouteImport } from './routes/syllabus'
@@ -85,6 +86,11 @@ const QuizzesRoute = QuizzesRouteImport.update({
   path: '/quizzes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecordLectureRoute = RecordLectureRouteImport.update({
+  id: '/record-lecture',
+  path: '/record-lecture',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/past-questions': typeof PastQuestionsRoute
   '/pricing': typeof PricingRoute
   '/quizzes': typeof QuizzesRoute
+  '/record-lecture': typeof RecordLectureRoute
   '/signup': typeof SignupRoute
   '/study-plan': typeof StudyPlanRoute
   '/syllabus': typeof SyllabusRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/past-questions': typeof PastQuestionsRoute
   '/pricing': typeof PricingRoute
   '/quizzes': typeof QuizzesRoute
+  '/record-lecture': typeof RecordLectureRoute
   '/signup': typeof SignupRoute
   '/study-plan': typeof StudyPlanRoute
   '/syllabus': typeof SyllabusRoute
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/past-questions': typeof PastQuestionsRoute
   '/pricing': typeof PricingRoute
   '/quizzes': typeof QuizzesRoute
+  '/record-lecture': typeof RecordLectureRoute
   '/signup': typeof SignupRoute
   '/study-plan': typeof StudyPlanRoute
   '/syllabus': typeof SyllabusRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/past-questions'
     | '/pricing'
     | '/quizzes'
+    | '/record-lecture'
     | '/signup'
     | '/study-plan'
     | '/syllabus'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/past-questions'
     | '/pricing'
     | '/quizzes'
+    | '/record-lecture'
     | '/signup'
     | '/study-plan'
     | '/syllabus'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/past-questions'
     | '/pricing'
     | '/quizzes'
+    | '/record-lecture'
     | '/signup'
     | '/study-plan'
     | '/syllabus'
@@ -279,6 +291,7 @@ export interface RootRouteChildren {
   PastQuestionsRoute: typeof PastQuestionsRoute
   PricingRoute: typeof PricingRoute
   QuizzesRoute: typeof QuizzesRoute
+  RecordLectureRoute: typeof RecordLectureRoute
   SignupRoute: typeof SignupRoute
   StudyPlanRoute: typeof StudyPlanRoute
   SyllabusRoute: typeof SyllabusRoute
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizzesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/record-lecture': {
+      id: '/record-lecture'
+      path: '/record-lecture'
+      fullPath: '/record-lecture'
+      preLoaderRoute: typeof RecordLectureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -447,6 +467,7 @@ const rootRouteChildren: RootRouteChildren = {
   PastQuestionsRoute: PastQuestionsRoute,
   PricingRoute: PricingRoute,
   QuizzesRoute: QuizzesRoute,
+  RecordLectureRoute: RecordLectureRoute,
   SignupRoute: SignupRoute,
   StudyPlanRoute: StudyPlanRoute,
   SyllabusRoute: SyllabusRoute,

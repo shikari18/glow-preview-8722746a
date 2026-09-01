@@ -1,19 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, ChevronDown, CircleCheck, Plus, Send, Settings2, SlidersHorizontal, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { BookOpen, CircleCheck, FileDown, Target } from "lucide-react";
 
-import { DashboardLayout } from "@/components/dashboard-page";
+import { DashboardLayout, PageHeading, EmptyState } from "@/components/dashboard-page";
+import { SubjectPicker } from "@/components/subject-picker";
+import { findSubject } from "@/lib/subjects";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/syllabus")({
   head: () => ({
     meta: [
-      { title: "Study Plan — your syllabus, topic by topic | ExamGlow" },
+      { title: "Syllabus — pick a subject and see every topic | ExamGlow" },
       {
         name: "description",
         content:
-          "Follow a generated study plan built from your syllabus: every topic ordered, tracked and ready to revise.",
+          "Choose the subject whose syllabus you want, then work through every topic with covered and mastered tracking.",
       },
-      { property: "og:title", content: "Study Plan | ExamGlow" },
-      { property: "og:description", content: "Every topic from your syllabus, ordered and tracked." },
+      { property: "og:title", content: "Syllabus | ExamGlow" },
+      { property: "og:description", content: "Choose a subject syllabus and track every topic." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -21,115 +25,142 @@ export const Route = createFileRoute("/syllabus")({
   component: SyllabusPage,
 });
 
-const topics = [
-  "Rational Choice Theory",
-  "Bounded Rationality and Satisficing",
-  "Dual Process Model",
-  "Heuristics and Biases",
-  "Availability and Representativeness Heuristics",
-  "Anchoring and Adjustment",
-  "Prospect Theory",
-  "Loss Aversion and Framing",
-];
+type Status = "todo" | "covered" | "mastered";
 
 function SyllabusPage() {
+  const [subjectId, setSubjectId] = useState<string | null>(null);
+  const [status, setStatus] = useState<Record<string, Status>>({});
+
+  const subject = findSubject(subjectId);
+  const topics = subject?.topics ?? [];
+  const covered = topics.filter((t) => status[t] === "covered" || status[t] === "mastered").length;
+  const mastered = topics.filter((t) => status[t] === "mastered").length;
+  const progress = topics.length ? Math.round((covered / topics.length) * 100) : 0;
+
+  function cycle(topic: string) {
+    setStatus((prev) => {
+      const current = prev[topic] ?? "todo";
+      const next: Status = current === "todo" ? "covered" : current === "covered" ? "mastered" : "todo";
+      return { ...prev, [topic]: next };
+    });
+  }
+
   return (
-    <DashboardLayout crumbs={[{ label: "My First Study Set" }, { label: "Study Plan" }]}>
-      <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 py-5">
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-mint text-ink">
-          <BookOpen className="size-6" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h1 className="flex min-w-0 items-center gap-2 truncate text-[clamp(1.6rem,3vw,2.2rem)]">
-            My First Study Set <Settings2 className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-          </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-full border border-border bg-card px-4 py-2 text-sm">
-            <span className="flex items-center gap-1.5"><BookOpen className="size-4" aria-hidden /> 15 Topics</span>
-            <span className="flex items-center gap-1.5 text-muted-foreground"><CircleCheck className="size-4 text-lavender" aria-hidden /> 0 Covered</span>
-            <span className="flex items-center gap-1.5 text-muted-foreground"><CircleCheck className="size-4 text-lavender" aria-hidden /> 0 Mastered</span>
-            <span className="h-1.5 min-w-24 flex-1 rounded-full bg-secondary" />
-          </div>
-        </div>
-      </header>
+    <DashboardLayout crumbs={[{ label: "Course" }, { label: "Syllabus" }]}>
+      <PageHeading
+        icon={<BookOpen className="size-5" aria-hidden />}
+        title="Choose a syllabus"
+        subtitle="Pick the subject you're studying and we'll lay out every topic in order."
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="min-w-0">
-          <section className="rounded-3xl bg-surface p-4">
-            <p className="text-sm text-muted-foreground">Customize your Study Plan</p>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-              <span className="text-muted-foreground">Mode</span>
-              <button type="button" className="rounded-full bg-card px-4 py-2 font-medium">Comprehensive</button>
-              <span className="text-muted-foreground">Sort By</span>
-              <button type="button" className="flex items-center gap-1.5 rounded-full bg-card px-4 py-2 font-medium">
-                Recommended <Sparkles className="size-3.5" aria-hidden />
-              </button>
-              <SlidersHorizontal className="size-4 text-muted-foreground" aria-hidden />
-              <Settings2 className="size-4 text-muted-foreground" aria-hidden />
+      <SubjectPicker
+        selected={subjectId}
+        onSelect={(s) => {
+          setSubjectId(s.id);
+          setStatus({});
+        }}
+        title="1. Which subject's syllabus?"
+        description="You can switch subjects at any time — your ticks are kept per subject session."
+      />
+
+      {!subject ? (
+        <div className="mt-8">
+          <EmptyState
+            title="No syllabus selected yet"
+            body="Choose a subject above to see its full topic list, then tick topics off as you cover and master them."
+          />
+        </div>
+      ) : (
+        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <section className="min-w-0 rounded-3xl border border-border bg-card p-5">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase text-muted-foreground">Syllabus</p>
+                <h2 className="mt-1 text-3xl">{subject.name}</h2>
+              </div>
+              <span className="text-sm text-muted-foreground">Tap a topic to mark covered, then mastered.</span>
             </div>
+
+            <ul className="mt-5 divide-y divide-border border-y border-border">
+              {topics.map((topic, i) => {
+                const state = status[topic] ?? "todo";
+                return (
+                  <li key={topic}>
+                    <button
+                      type="button"
+                      onClick={() => cycle(topic)}
+                      className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-4 text-left transition-colors hover:bg-secondary/50"
+                    >
+                      <span
+                        className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${
+                          state === "mastered"
+                            ? "border-lavender bg-lavender text-ink-foreground"
+                            : state === "covered"
+                              ? "border-lavender bg-lilac/60"
+                              : "border-border"
+                        }`}
+                      >
+                        {state !== "todo" && <CircleCheck className="size-3.5" aria-hidden />}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-xs uppercase tracking-wide text-muted-foreground">
+                          Topic {i + 1}
+                        </span>
+                        <span className="block truncate font-medium">{topic}</span>
+                      </span>
+                      <span className="shrink-0 text-xs capitalize text-muted-foreground">{state}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </section>
 
-          <div className="mt-6 flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-full bg-lilac text-ink">
-              <Send className="size-4" aria-hidden />
-            </span>
-            <span className="font-medium">Start learning here</span>
-          </div>
-
-          <section className="mt-3 rounded-3xl border border-border p-4 sm:p-5">
-            <div className="flex items-center gap-2">
-              <ChevronDown className="size-4 text-muted-foreground" aria-hidden />
-              <span className="size-4 rounded-full border border-border" />
-              <h2 className="text-lg font-semibold">Behavioral Economics Foundations</h2>
-            </div>
-
-            <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-lilac/25 px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate font-medium">See what you already know</p>
-                <p className="text-sm text-muted-foreground">Takes 3 minutes</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <button type="button" className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-ink-foreground">Save Time</button>
-                <button type="button" className="rounded-full px-3 py-2 text-sm text-muted-foreground">Skip</button>
-              </div>
-            </div>
-
-            <ul className="mt-2 border-l border-border pl-4">
-              {topics.map((topic) => (
-                <li key={topic} className="flex items-center gap-3 py-3">
-                  <span className="size-4 shrink-0 rounded-full border border-border" />
-                  <span className="min-w-0 truncate text-[15px]">{topic}</span>
+          <aside className="space-y-4">
+            <section className="rounded-3xl bg-surface p-5">
+              <h2 className="text-lg">Your progress</h2>
+              <span className="mt-3 block h-1.5 overflow-hidden rounded-full bg-secondary">
+                <span className="block h-full rounded-full bg-lavender" style={{ width: `${progress}%` }} />
+              </span>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li className="flex items-center gap-2">
+                  <BookOpen className="size-4" aria-hidden /> {topics.length} topics
                 </li>
-              ))}
-            </ul>
-          </section>
-        </div>
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <CircleCheck className="size-4 text-lavender" aria-hidden /> {covered} covered
+                </li>
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <CircleCheck className="size-4 text-lavender" aria-hidden /> {mastered} mastered
+                </li>
+              </ul>
+            </section>
 
-        <aside className="space-y-4">
-          <section className="rounded-3xl bg-surface p-5">
-            <h2 className="text-lg">Your Progress</h2>
-            <span className="mt-3 block h-1.5 rounded-full bg-secondary" />
-            <ul className="mt-4 space-y-2.5 text-sm">
-              <li className="flex items-center gap-2"><BookOpen className="size-4" aria-hidden /> 15 Topics</li>
-              <li className="flex items-center gap-2 text-muted-foreground"><CircleCheck className="size-4 text-lavender" aria-hidden /> 0 Covered</li>
-              <li className="flex items-center gap-2 text-muted-foreground"><CircleCheck className="size-4 text-lavender" aria-hidden /> 0 Mastered</li>
-            </ul>
-          </section>
-          <section className="rounded-3xl bg-surface p-5">
-            <h2 className="text-lg">Add your syllabus</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Tailor your study plan schedule and priorities.</p>
-            <button type="button" className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-card px-4 py-2.5 text-sm font-medium">
-              <Plus className="size-4" aria-hidden /> Add syllabus
-            </button>
-          </section>
-          <section className="rounded-3xl bg-surface p-5">
-            <h2 className="text-lg">Exam Dates</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Ensure you are studying what matters before your exam.</p>
-            <button type="button" className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-card px-4 py-2.5 text-sm font-medium">
-              <Plus className="size-4" aria-hidden /> Add exam date
-            </button>
-          </section>
-        </aside>
-      </div>
+            <section className="rounded-3xl bg-surface p-5">
+              <h2 className="text-lg">Turn it into a plan</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Schedule these topics around your exam date.
+              </p>
+              <Link
+                to="/study-plan"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-card px-4 py-2.5 text-sm font-medium"
+              >
+                <Target className="size-4" aria-hidden /> Build a study plan
+              </Link>
+            </section>
+
+            <section className="rounded-3xl bg-surface p-5">
+              <h2 className="text-lg">Test yourself</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Check what already sticks before revising more.</p>
+              <Link
+                to="/test"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-card px-4 py-2.5 text-sm font-medium"
+              >
+                <FileDown className="size-4" aria-hidden /> Start a test
+              </Link>
+            </section>
+          </aside>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
