@@ -19,7 +19,6 @@ import {
   PenLine,
   Search,
   Upload,
-  UsersRound,
   X,
 } from "lucide-react";
 
@@ -69,7 +68,7 @@ export function DashboardSidebar() {
   }, [mobileOpen]);
 
   const navItem = ({ label, to, Icon }: NavItem, inset = false, mobile = false) => {
-    const active = pathname === to && (label === "Home" || label === "Notes" || label === "Syllabus" || label === "Assignments" || label === "Flashcards" || label === "Arcade");
+    const active = pathname === to;
     const showLabels = mobile || !collapsed;
     return (
       <Link
