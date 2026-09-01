@@ -7,8 +7,6 @@ import {
   CircleHelp,
   FileText,
   ClipboardCheck,
-  Gamepad2,
-  Headphones,
   Home,
   Menu,
   MessageCircle,
@@ -16,7 +14,6 @@ import {
   NotebookTabs,
   PanelLeftClose,
   PanelLeftOpen,
-  PenLine,
   Search,
   Upload,
   X,
@@ -40,9 +37,6 @@ const practiceItems = [
   { label: "QuizFetch", to: "/quizzes", Icon: ClipboardCheck },
   { label: "Test", to: "/test", Icon: CircleHelp },
   { label: "Flashcards", to: "/flashcards", Icon: NotebookTabs },
-  { label: "Arcade", to: "/arcade", Icon: Gamepad2 },
-  { label: "Essay Grader", to: "/assignments", Icon: PenLine },
-  { label: "Audio Recap", to: "/record-lecture", Icon: Headphones },
 ] as const;
 
 
